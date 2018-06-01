@@ -67,7 +67,7 @@ void dbg_currentParametersService()
     extern CanSoftwareBuffer_t *canmonitorSoftBuffer;
     extern CanSoftwareBuffer_t *tangageControlSoftBuffer;
     
-    canMonitor_sendTestValue1(tangageControlSoftBuffer->queue->count);
+    //canMonitor_sendTestValue1(tangageControlSoftBuffer->queue->count);
   }
 }
 

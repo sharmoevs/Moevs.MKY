@@ -55,7 +55,7 @@ int main()
   gk_init();                    // инициализация режима ГК
   timer_setEnable(MDR_TIMER2, 1);
   NVIC_EnableIRQ(CAN1_IRQn);    // разрешение прерываний can. Чтобы после перепрограммирования загрузчики были инициализированы
-
+  ADC_MEASURE(ANGEL_VELOCITY_SENSOR_ADC_CHANNEL);
   
   ////while(1) stopwatchTestFunc(100);
   
@@ -104,6 +104,11 @@ void TIMER4_IRQHandler()
   {
     canMonitor_sendAngle();             // текущий угол
     canMonitor_sendCourseVelocity();    // угловая скорость
+    
+    extern uint16_t adcRawCode;
+    extern uint32_t adcOvesamplingValue;
+    extern uint16_t dusCode;
+    canMonitor_sendTestValue1(adcOvesamplingValue);
   }  
 }
 

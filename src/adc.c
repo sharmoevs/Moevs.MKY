@@ -32,8 +32,8 @@ void adc_init()
                        0x4<<12 |            // коэф деления входной частоты
                        1<<0;                // включить АЦП
                          
-   //MDR_ADC->ADC1_STATUS = 1<<4;             // прерывание по окончанию преобразования
-   //NVIC_EnableIRQ(ADC_IRQn);                // разрешить прерывания
+   MDR_ADC->ADC1_STATUS = 1<<4;             // прерывание по окончанию преобразования
+   NVIC_EnableIRQ(ADC_IRQn);                // разрешить прерывания
    
      
    //correctDusZeroVelocity();                // скорректировать ДУС по нулевой угловой скорости
@@ -44,6 +44,31 @@ void adc_init()
    //   test();
    // }
 }
+
+
+
+static uint32_t ADC_OVERSAMPLING_ACUM = 0;
+static uint32_t ADC_OVERSAMPLING_INDX = 0;
+uint32_t adcOvesamplingValue = 0;
+uint16_t adcRawCode;
+
+void ADC_IRQHandler()
+{
+  adcRawCode = (uint16_t)(MDR_ADC->ADC1_RESULT);
+  ADC_OVERSAMPLING_ACUM += adcRawCode;  
+  ADC_OVERSAMPLING_INDX++;
+  
+  if(ADC_OVERSAMPLING_INDX == ADC_OVERSAMPLING_SAMPLES)
+  {
+    adcOvesamplingValue = ADC_OVERSAMPLING_ACUM >> 3;
+    ADC_OVERSAMPLING_INDX = 0;
+    ADC_OVERSAMPLING_ACUM = 0;
+  }
+  
+  ADC_MEASURE(ANGEL_VELOCITY_SENSOR_ADC_CHANNEL);
+}
+
+
 
 
 // Оцифровка заданного канала
@@ -79,8 +104,10 @@ void test()
 // ДУС
 uint16_t adc_getVelocityCode()
 {
-  uint16_t code = adc_start(ANGEL_VELOCITY_SENSOR_ADC_CHANNEL);
-  return code;
+  //uint16_t code = adc_start(ANGEL_VELOCITY_SENSOR_ADC_CHANNEL);
+  //return code;
+
+  return adcRawCode;
 }
 
 

@@ -23,6 +23,10 @@
 #endif
 
 
+#define ADC_OVERSAMPLING_SAMPLES        64
+#define ADC_OVERSAMPLING_AVER_KOEF      3
+
+
 // Номера каналов АЦП
 #define ADC_CHANNEL_0           0
 #define ADC_CHANNEL_1           1
