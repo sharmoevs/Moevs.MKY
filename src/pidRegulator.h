@@ -11,7 +11,7 @@ void pid_reset();
 void pid_setEnable(uint8_t enable);     // включить/выключить ПИД-регулятор
 float pid_nextCode(float mismatch);
 
-
+float pid_nextCodeDeltaAngleMinusDus(float mismatch, float dus);
 
 
 

@@ -10,7 +10,7 @@
 #include "differentiator.h"
 #include "digitalFilter.h"
 
-//#define DBG_START_IN_ENGINE_OFF_MODE        // ДЛЯ ОТЛАДКИ - запуститься с выключенными двигателями
+#define DBG_START_IN_ENGINE_OFF_MODE        // ДЛЯ ОТЛАДКИ - запуститься с выключенными двигателями
 
 extern int16_t dusAmplitude;
 extern uint32_t courseAngleCodeX32;
@@ -68,7 +68,8 @@ void _gk_nextInitialize();
 void _gk_nextAR();
 void _gk_nextAR_withoutDUS();
 void _gk_nextAR_withDiffAndFilter();
-
+void _gk_nextAR_deltaAngleMinusDus();
+      
 void _gk_nextVUS();
 void _gk_nextVelocityCalibration();
 void _gk_nextTudaSudaVUS();
@@ -128,12 +129,16 @@ void gk_moveNext()
     case GkMode_VUS:                    _gk_nextVUS(); break;                   // ВУС                        
     //case GkMode_AR:                     _gk_nextAR(); break;                    // арретир    
     case GkMode_AR:// арретир БЕЗ ДУС
+           
+      _gk_nextAR_deltaAngleMinusDus();
+      /*
       if(dbg_useDusWhileArretiered) _gk_nextAR();
       else 
       {
         _gk_nextAR_withoutDUS();
         //_gk_nextAR_withDiffAndFilter();
       }
+      */
       break;
     case GkMode_VelocityCalibration:    _gk_nextVelocityCalibration(); break;   // калибровка по скорости
     case GkMode_TudaSudaVUS:            _gk_nextTudaSudaVUS(); break;           // туда-сюда ВУС
@@ -504,6 +509,43 @@ void _gk_nextAR_withDiffAndFilter()                                             
   deltaFi = angle_getMinimalAngleRange(startAngle, stopAngle, TANGAGE_USYSANGLE_TO_CODE(360));
   tangageArretieredNow = (ABS(deltaFi) <= COURSE_ARRETIERED_DELTA_FI); // флаг нахождения в арретире ТАНГАЖНОГО контура
 }
+
+
+
+
+// 2018.1 Арретир: разница углов смешивается с ДУС
+void _gk_nextAR_deltaAngleMinusDus()
+{
+  uint32_t startAngle = g_sysAngle360;
+  uint32_t stopAngle = arretierRequiredAngleU32;
+  int32_t deltaFi = angle_getMinimalAngleRange(startAngle, stopAngle, USYSANGLE_TO_CODE(360));
+  courseArretieredNow = (ABS(deltaFi) <= COURSE_ARRETIERED_DELTA_FI); // флаг нахождения в арретире КУРСОВОГО контура
+  
+
+  if((deltaFi>=0) && (deltaFi>AR_THRESHOLD)) deltaFi = AR_THRESHOLD;
+  if((deltaFi<0) && (deltaFi<-AR_THRESHOLD)) deltaFi = -AR_THRESHOLD;
+  
+  
+  float mismatch = deltaFi;
+  float upr = pid_nextCodeDeltaAngleMinusDus(mismatch, dusAmplitude);
+  gk_PidRegulatorSpin(upr);  // управление движением
+    
+  // Проверить находится ли ТАНГАЖНЫЙ контур в Арретире
+  startAngle = g_tangageSysAngle360;
+  stopAngle = tangageArretieredRequiredAngleU32;
+  deltaFi = angle_getMinimalAngleRange(startAngle, stopAngle, TANGAGE_USYSANGLE_TO_CODE(360));
+  tangageArretieredNow = (ABS(deltaFi) <= COURSE_ARRETIERED_DELTA_FI); // флаг нахождения в арретире ТАНГАЖНОГО контура
+
+}
+
+
+
+
+
+
+
+
+
 
 
 // ВУС

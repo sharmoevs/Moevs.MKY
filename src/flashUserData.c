@@ -72,6 +72,7 @@ void readUserDataFromFlash()
    
    koef_D = *((float*)(PID_KOEF_D_ADDR));
    if(koef_D != koef_D) koef_D = KOEF_D_DEFAULT;
+   koef_D = 10;
    
    koef_N = *((float*)(PID_KOEF_N_ADDR));
    if(koef_N != koef_N) koef_N = KOEF_N_DEFAULT;

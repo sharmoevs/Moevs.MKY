@@ -166,6 +166,16 @@ float pid_nextCode(float mismatch)
   return lastPidUprValue;
 }
 
+//версия пид-регулятора для модели в которой к рассогласовынию углов,
+// которое поступает на PI-регулятор подмешивается сигнал ДУС с коэф.
+float pid_nextCodeDeltaAngleMinusDus(float mismatch, float dus)
+{
+  float pi = _pid_regulatorPI(mismatch);  
+  float upr = pi - koef_D * dus;
+  lastPidUprValue = upr;
+  return lastPidUprValue;  
+}
+
 
 /*
 void pid_test()
