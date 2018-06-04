@@ -92,6 +92,23 @@ void pid_setEnable(uint8_t enable)
 // ПИ-регулятор
 float _pid_regulatorPI(float mismatch)
 {
+ 
+  static float sum = 0;
+  
+  sum += mismatch;
+  
+  #define MAX_SUM 2797.0F
+  
+  if (sum >= MAX_SUM)
+    sum = MAX_SUM;
+  
+  if (sum <= -MAX_SUM)
+    sum = -MAX_SUM;
+  
+  float result = koef_P * mismatch + _calcI * sum;
+  
+  /*
+  
   uint8_t k=2;  // k   : текущее измерение
                 // k-1 : предыдущее
                 // k-2 : предпредыдущее
@@ -105,6 +122,10 @@ float _pid_regulatorPI(float mismatch)
   pi_y[k-1] = pi_y[k];
   pi_y[k]   = pi_y[k-1] + koef_P*pi_x[k] - _calcI*pi_x[k-1];  
   return pi_y[k];
+  
+  */
+  
+  return result;
 }
 
 // Дифференциальная часть ПИД-регулятора

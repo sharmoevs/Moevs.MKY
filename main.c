@@ -31,11 +31,7 @@ void testfunc();
 extern CanSoftwareBuffer_t *canmonitorSoftBuffer;
 extern CanSoftwareBuffer_t *tangageControlSoftBuffer;
 
-/*
-Сделать режим первичной настройкой с заданием коэффициентов и всего остального
-Округление выдаваемых координат по арингу к ближайшему возможному (реальный угол 9.99999, а отображается как 9.99223)
 
-*/
 
 
 int main()
