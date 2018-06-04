@@ -166,11 +166,43 @@ float pid_nextCode(float mismatch)
   return lastPidUprValue;
 }
 
+
+
+
+
+
+
+float _pi_regulatorDeltaAngleMinusDus(float mismatch);
+float g_I0 = 1;
+float g_Threshold = 2048;
+float g_k = 1;
+
+// ПИ-регулятор
+float _pi_regulatorDeltaAngleMinusDus(float mismatch)
+{
+  uint8_t k=2;  // k   : текущее измерение
+                // k-1 : предыдущее
+                // k-2 : предпредыдущее
+
+  //float mismatch = presetCode - realCode;                  // рассогласование
+  pi_x[k-2] = pi_x[k-1];
+  pi_x[k-1] = pi_x[k];
+  pi_x[k] = mismatch;
+
+  pi_y[k-2] = pi_y[k-1];
+  pi_y[k-1] = pi_y[k];
+  pi_y[k]   = pi_y[k-1] + koef_P*pi_x[k] - // _calcI*pi_x[k-1];  
+              koef_P*pi_x[k-1]*(1-tDiskr*(g_I0 + g_k*(g_Threshold - lastPidUprValue)));
+    
+  return pi_y[k];
+}
+
+
 //версия пид-регулятора для модели в которой к рассогласовынию углов,
 // которое поступает на PI-регулятор подмешивается сигнал ДУС с коэф.
 float pid_nextCodeDeltaAngleMinusDus(float mismatch, float dus)
 {
-  float pi = _pid_regulatorPI(mismatch);  
+  float pi = _pi_regulatorDeltaAngleMinusDus(mismatch);  
   float upr = pi - koef_D * dus;
   lastPidUprValue = upr;
   return lastPidUprValue;  

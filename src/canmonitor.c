@@ -563,6 +563,52 @@ void canMonitor_processDbgTEXT(uint8_t *pBuf, uint8_t len)
   }
   
   
+  // КОЭФФИЦИЕНТЫ НОВОГО ПИД
+  
+  // Установить I0
+  if(continueWith("I0 ", pBuf, &ptr))
+  {
+    float value = strtof(ptr, &end);
+    if(ptr == end) return;
+    extern float g_I0;
+    g_I0 = value;
+    canMonitor_printf("g_I0 = %f", g_I0);
+  }
+  
+    // Установить ограничитель
+  if(continueWith("P0 ", pBuf, &ptr))
+  {
+    float value = strtof(ptr, &end);
+    if(ptr == end) return;
+    extern float g_Threshold;
+    g_Threshold = value;
+    canMonitor_printf("g_Threshold = %f", g_Threshold);
+  }
+
+  // Установить К0
+  if(continueWith("K0 ", pBuf, &ptr))
+  {
+    float value = strtof(ptr, &end);
+    if(ptr == end) return;
+    extern float g_k;
+    g_k = value;
+    canMonitor_printf("g_k = %f", g_k);
+  }
+  
+  if(continueWith("get pid coef", pBuf, &ptr))
+  {
+    extern float g_I0;
+    extern float g_k;
+    extern float g_Threshold;
+    
+    canMonitor_printf("\nI0 = %.3f\n"
+                      "P0 = %.3f\n"
+                      "K0 = %.3f\n"
+                      
+                      ,g_I0, g_Threshold, g_k);
+  }
+  
+  
 }
 
 // Отправить список команд
