@@ -2,6 +2,7 @@
 #include "timers.h"
 #include "settings.h"
 #include "canTerminal.h" // для отладки
+#include "angelSensor.h"
 
 
 float pi_x[3];                // рассогласования
@@ -187,12 +188,25 @@ float pid_nextCode(float mismatch)
   return lastPidUprValue;
 }
 
+#define FILTER_PARAM 0.5F
+#define EXP_FILTER(X, PREV) ((X) * (FILTER_PARAM) + (1.0F - (FILTER_PARAM)) * (PREV))
+
 //версия пид-регулятора для модели в которой к рассогласовынию углов,
 // которое поступает на PI-регулятор подмешивается сигнал ДУС с коэф.
-float pid_nextCodeDeltaAngleMinusDus(float mismatch, float dus)
+float pid_nextCodeDeltaAngleMinusDus(float mismatch, float DeltaAngle)
 {
+  static float DeltaAnglePrev = 0;
+  
+  float Speed = EXP_FILTER(DeltaAngle, DeltaAnglePrev);
+  Speed = USYSANGLE_TO_FLOAT(Speed);
+  Speed /= 500.0E-6;
+  
+  Speed /= 32;
+  
+  DeltaAnglePrev = DeltaAngle;
+  
   float pi = _pid_regulatorPI(mismatch);  
-  float upr = pi - koef_D * dus;
+  float upr = pi - koef_D * Speed;
   lastPidUprValue = upr;
   return lastPidUprValue;  
 }

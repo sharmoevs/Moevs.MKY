@@ -527,7 +527,10 @@ void _gk_nextAR_deltaAngleMinusDus()
   
   
   float mismatch = deltaFi;
-  float upr = pid_nextCodeDeltaAngleMinusDus(mismatch, dusAmplitude);
+  // float upr = pid_nextCodeDeltaAngleMinusDus(mismatch, dusAmplitude);
+  
+  float upr = pid_nextCodeDeltaAngleMinusDus(mismatch, deltaFi);
+  
   gk_PidRegulatorSpin(upr);  // управление движением
     
   // Проверить находится ли ТАНГАЖНЫЙ контур в Арретире
