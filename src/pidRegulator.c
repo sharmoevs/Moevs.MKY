@@ -106,7 +106,7 @@ float _pid_regulatorPI(float mismatch)
   if (sum <= -MAX_SUM)
     sum = -MAX_SUM;
   
-  float result = koef_P * mismatch + _calcI * sum;
+  float result = koef_P * mismatch + koef_I * sum;
   
   /*
   
