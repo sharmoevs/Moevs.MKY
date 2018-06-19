@@ -192,7 +192,7 @@ void canMonitor_blockingPrintf(MDR_CAN_TypeDef *can, uint8_t canHwBuf, uint8_t *
 {
   uint8_t buf[256];  
   va_list args;
-  va_start(args, p);
+  va_start(args, format);
   int len = vsnprintf((char*)buf, sizeof(buf), (char*)format, args);
   va_end(args);
   
