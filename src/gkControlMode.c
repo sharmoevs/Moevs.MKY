@@ -10,7 +10,7 @@
 #include "differentiator.h"
 #include "digitalFilter.h"
 
-//#define DBG_START_IN_ENGINE_OFF_MODE        // ДЛЯ ОТЛАДКИ - запуститься с выключенными двигателями
+#define DBG_START_IN_ENGINE_OFF_MODE        // ДЛЯ ОТЛАДКИ - запуститься с выключенными двигателями
 
 extern int16_t dusAmplitude;
 extern uint32_t courseAngleCodeX32;

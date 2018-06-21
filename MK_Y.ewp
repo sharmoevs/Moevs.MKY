@@ -3776,6 +3776,21 @@
     </settings>
   </configuration>
   <group>
+    <name>CAN queue</name>
+    <file>
+      <name>$PROJ_DIR$\src\canFrameQueue.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\src\canmonitorText.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\src\dataQueue.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\src\linkedList.c</name>
+    </file>
+  </group>
+  <group>
     <name>control</name>
     <file>
       <name>$PROJ_DIR$\src\angelSensor.c</name>
@@ -3812,21 +3827,6 @@
     </file>
     <file>
       <name>$PROJ_DIR$\src\tangageControl.c</name>
-    </file>
-  </group>
-  <group>
-    <name>CAN queue</name>
-    <file>
-      <name>$PROJ_DIR$\src\canFrameQueue.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\src\canmonitorText.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\src\dataQueue.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\src\linkedList.c</name>
     </file>
   </group>
   <group>
@@ -3922,6 +3922,9 @@
       <name>$PROJ_DIR$\startup\startup_1986BE1x.s</name>
     </file>
   </group>
+  <file>
+    <name>$PROJ_DIR$\src\coreControl.c</name>
+  </file>
   <file>
     <name>$PROJ_DIR$\main.c</name>
   </file>

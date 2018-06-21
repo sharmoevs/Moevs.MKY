@@ -23,6 +23,7 @@
 #include "dataQueue.h"
 #include "canMonitorText.h"
 #include "canFrameQueue.h"
+#include "coreControl.h"
 
 
 
@@ -53,6 +54,8 @@ int main()
   tangageCtrl_init();
 #endif  
   gk_init();                    // инициализация режима ГК
+  coreControlInit();
+  
   timer_setEnable(MDR_TIMER2, 1);
   NVIC_EnableIRQ(CAN1_IRQn);    // разрешение прерываний can. Чтобы после перепрограммирования загрузчики были инициализированы
 
@@ -112,7 +115,8 @@ void TIMER2_IRQHandler()
 {
   MDR_TIMER2->STATUS &= ~TIMER_STATUS_CNT_ARR_EVENT; // сбросить флаг
 
-  gk_moveNext();
+  //gk_moveNext();
+  coreMove();
 }
 
 

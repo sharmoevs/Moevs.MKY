@@ -4,6 +4,7 @@
 
 
 
+void coreControlInit();
 void coreMove();
 void resetVUSIntegral();
 

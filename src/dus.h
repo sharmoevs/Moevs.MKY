@@ -5,7 +5,7 @@
 #include "dusFilter.h"
 
 
-
+#define DUS_CONVERT_TO_DEGREES_PER_SEC(code)    ((float)code/32.0)
 #define VEL_CALIBRATION_AVERAGE     128 
 
 

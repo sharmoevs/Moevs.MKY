@@ -15,7 +15,9 @@
 #define TIM_PWM_CLK                     30000000        // частота тактирования таймера ШИМ
 #define PWM_FREQ                        15000           // частота ШИМ
 #define TIM_PWM_ARR_REG                 ((TIM_PWM_CLK/PWM_FREQ)-1)
-#define TIM_PWM_60_PERCENTAGE_CCR3_REG  (uint16_t)((60*TIM_PWM_ARR_REG)/100)
+#define TIM_PWM_GET_CCR3(percentage)    (uint16_t)((percentage*TIM_PWM_ARR_REG)/100)
+#define TIM_PWM_60_PERCENTAGE_CCR3_REG  TIM_PWM_GET_CCR3(60)
+//#define TIM_PWM_60_PERCENTAGE_CCR3_REG  (uint16_t)((60*TIM_PWM_ARR_REG)/100)
 
 // Идентификатор и имя загрузчика
 #define SELF_LOADER_DEFAULT_NAME        ("MK Y")
