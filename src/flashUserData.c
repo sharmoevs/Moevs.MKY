@@ -79,6 +79,13 @@ void readUserDataFromFlash()
    tDiskr = *((float*)(PID_TDISKR_ADDR));
    if(tDiskr != tDiskr) tDiskr = TDISKR_DEFAULT;
    
+   koef_P = 1.670F;
+   koef_I = 0.00551F;
+   koef_D = 185.48F;
+   
+   
+   
+   
    dusCalibrationKoef = *((double*)DUS_KORR_KOER_ADDR);
    if(dusCalibrationKoef != dusCalibrationKoef) dusCalibrationKoef = DUS_KORR_KOEF_DEFAULT;
    

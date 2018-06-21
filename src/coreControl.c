@@ -6,15 +6,7 @@
 #include "dus.h"
 #include "engineControl.h"
 
-/*
-TODO:
- 1) _getCurrentPosition _getEndPosition должны выдавать значения в одних и тех же единицах в разных режимах
-    пока не сделано приведение к общему виду
- 2) реализовать _filter_fir_2
- 3) реализовать _pid
- 4) проверить _setPwm
 
-*/
 
 typedef enum
 {
@@ -48,9 +40,11 @@ float           _saturation(float in, float *correction);
 void            _setPwm(float pidOut);
 
 
-void F_2_reset();
+void F_1_reset();
+float F_1(float x);
 float F_2(float x);
-float PID(float mismatch);
+void F_2_reset();
+float PID(float mismatch, float mismatch_for_i);
 void PID_reset();
 
 
@@ -95,12 +89,15 @@ float _getPosition(_controlMode_t mode, float value)
   if (mode == CTRL_MODE_ARRETIER)
   {
     result = USYSANGLE_TO_FLOAT(value);
+    
+    // result = F_2(result);
+    
     return result;
   }
   if(mode == CTRL_MODE_VUS)  // VUS
   {
     float speed = DUS_CONVERT_TO_DEGREES_PER_SEC(value);
-    static float T = 0.0005/1000.0;   // 500мкс
+    static const float T = 500E-6;   // 500мкс
     
     vusIntegral += speed * T;    
     return vusIntegral;
@@ -122,13 +119,14 @@ void resetVUSIntegral()
 float _saturation(float in, float *correction)
 {
 #define MAX_VALUE 60
+#define Ka 0.10066F
   
   float out;
   if(in > MAX_VALUE) out = MAX_VALUE;
   else if(in < -MAX_VALUE) out = -MAX_VALUE;
   else out = in;
   
-  *correction = (out - in);
+  *correction = Ka * (out - in);
   return out;
 }
 
@@ -159,7 +157,7 @@ void _setPwm(float pid)
 
 
 
-// Фильтр второго порядка, переменные
+// Фильтр первого порядка, переменные
 
 typedef struct
 {
@@ -169,20 +167,73 @@ typedef struct
   float a0;
   float b0;
   float b1;
-} f_2_struct_t;
+} f_1_struct_t;
 
-static f_2_struct_t f_2_struct = {.a0 = 0,
-                                  .b0 = 0,
-                                  .b1 = 0,
+static f_1_struct_t f_1_struct = {.a0 = -0.9484F,
+                                  .b0 = -0.02641F,
+                                  .b1 = 1,
                                   .y_prev = 0,
                                   .x_prev = 0};
 
-// Фильтр 2-го порядка для фильтрации рассогласования на входе регулятора
+// Фильтр 1-го порядка для фильтрации рассогласования на входе регулятора
 // Разностная формула: (b1z + b0) / (z + a0)
 // Формула: y = -a0 * y_prev + b1 * x_prev + b0 * x
+float F_1(float x)
+{
+  float y = -f_1_struct.a0 * f_1_struct.y_prev + f_1_struct.b1 * f_1_struct.x_prev + f_1_struct.b0 * x;
+  
+  f_1_struct.x_prev = x;
+  f_1_struct.y_prev = y;
+  
+  return y;
+}
+
+void F_1_reset()
+{
+  f_1_struct.x_prev = 0;
+  f_1_struct.y_prev = 0;
+}
+
+
+
+// Фильтр второго порядка, переменные
+
+typedef struct
+{
+  float y_prev;
+  float x_prev;
+  float y_prev_2;
+  float x_prev_2;
+  
+  float a1;
+  float a2;
+  float b0;
+  float b1;
+  float b2;
+  
+} f_2_struct_t;
+
+static f_2_struct_t f_2_struct = {.a1 = -0.350920F,
+                                  .a2 = 0.0F,
+                                  .b0 = 0,
+                                  .b1 = 0.649080F,
+                                  .b2 = 0.0F,
+                                  .y_prev = 0,
+                                  .x_prev = 0,
+                                  .x_prev_2 = 0,
+                                  .y_prev_2 = 0};
+
+// Фильтр 2-го порядка для фильтрации рассогласования на входе регулятора
 float F_2(float x)
 {
-  float y = -f_2_struct.a0 * f_2_struct.y_prev + f_2_struct.b1 * f_2_struct.x_prev + f_2_struct.b0 * x;
+  float y = -f_2_struct.a1 * f_2_struct.y_prev - 
+             f_2_struct.a2 * f_2_struct.y_prev_2 + 
+             f_2_struct.b0 * x + 
+             f_2_struct.b1 * f_2_struct.x_prev +
+             f_2_struct.b2 * f_2_struct.x_prev_2;
+  
+  f_2_struct.x_prev_2 = f_2_struct.x_prev;
+  f_2_struct.y_prev_2 = f_2_struct.y_prev;
   
   f_2_struct.x_prev = x;
   f_2_struct.y_prev = y;
@@ -194,7 +245,13 @@ void F_2_reset()
 {
   f_2_struct.x_prev = 0;
   f_2_struct.y_prev = 0;
+  f_2_struct.x_prev_2 = 0;
+  f_2_struct.y_prev_2 = 0;
 }
+
+
+
+
 
 
 
@@ -208,13 +265,13 @@ typedef struct
 pid_struct_t pid_struct = {.integral = 0,
                            .prev_x   = 0};
 
-float PID(float mismatch)
+float PID(float mismatch, float mismatch_for_i)
 {
   float d = mismatch - pid_struct.prev_x;
   
   float sum = koef_P * mismatch + koef_I * pid_struct.integral + koef_D * d;
   
-  pid_struct.integral += mismatch;
+  pid_struct.integral += mismatch_for_i;
   pid_struct.prev_x = mismatch;
   
   return sum;
@@ -237,7 +294,7 @@ void PID_reset()
 void coreControlInit()
 {
   PID_reset();
-  F_2_reset();
+  F_1_reset();
 }
 
 
@@ -251,13 +308,13 @@ void coreMove()
   float endValue = (mode == CTRL_MODE_ARRETIER) ? arretierRequiredAngleU32 : constantSpeedCode;
 
   float currentPosition = _getPosition(mode, startValue);
-  float endPosition = _getPosition(mode, endValue); 
+  float endPosition = (mode == CTRL_MODE_ARRETIER) ? _getPosition(mode, endValue) : 0; 
   
   float delta = endPosition - currentPosition;  
-  delta = F_2(delta);
+  delta = F_1(delta);
   
-  float regulatorIn = delta - errorCorrection;
-  float pwmWithoutSaturation = PID(regulatorIn);
+  float delta_for_i = delta - errorCorrection;
+  float pwmWithoutSaturation = PID(delta, delta_for_i);
   float out = _saturation(pwmWithoutSaturation, &errorCorrection);
   
   lastPidUprValue = out;
