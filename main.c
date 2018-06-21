@@ -96,7 +96,7 @@ void TIMER4_IRQHandler()
   dus_getNextSample();          // отсчет с ДУС
   angle_getNextSampleX32();     // отсчет с датчика угла 
   angle_getVelocityFromAngle(); // рассчитать скорость по углу
-  dus_calibrate();              // калибровка ДУС
+  //dus_calibrate();              // калибровка ДУС
   gk_checkSpeedProtection();    // средняя скорость  
   canBusTest_sendNext();        // тест шины CAN
     

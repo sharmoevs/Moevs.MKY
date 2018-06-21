@@ -79,11 +79,29 @@ void readUserDataFromFlash()
    tDiskr = *((float*)(PID_TDISKR_ADDR));
    if(tDiskr != tDiskr) tDiskr = TDISKR_DEFAULT;
    
-   koef_P = 1.670F;
-   koef_I = 0.00551F;
-   koef_D = 185.48F;
+   float k = 2.0F;
    
+   // с этими коэффициентами работает неплохо в режиме арретир, k=2
+   // koef_P = k * 1.670F;
+   // koef_I = k * 0.00551F;
+   // koef_D = k * 185.48F;
    
+   // koef_P = 13.9620F;
+   // koef_I = 0.03379F;
+   // koef_D = 1221.016F;
+
+   // эксперимент медленный Treq=1 Lro = 1.8. Работало в ВУС и арретир
+   // koef_P = 0.1498F;
+   // koef_I = 0.000169F;
+   // koef_D = 41.4562F;
+   
+   // эксперимент более быстрые Treq=0.25, Lro=1.2. Хорошо работает для ВУС и арретир
+   // k = 2
+   koef_P = k * 1.28F;
+   koef_I = k * 0.00384F;
+   koef_D = k * 156.94F;
+   
+
    
    
    dusCalibrationKoef = *((double*)DUS_KORR_KOER_ADDR);

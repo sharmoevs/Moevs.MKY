@@ -25,7 +25,7 @@ extern uint32_t         g_sysAngle360;
 extern uint32_t         arretierRequiredAngleU32;
 
 uint8_t dbg_dusCorrectionEnable = 1;    // включить поправку к ДУС
-int16_t  dusCodeAmmend = 0;             // попкравка к АЦП ДУС
+int16_t  dusCodeAmmend = 7;             // попкравка к АЦП ДУС
 uint32_t g_arCalibratedAngle = 0;       // угол в котором откалибровались в последний раз
 DusTempCorrection_t dusTemperatureCorrections[DUS_TEMPCALIB_RANGES_COUNT];
 DusTempCorrection_t dusDefaultTemperatureCorrections[DUS_TEMPCALIB_RANGES_COUNT];

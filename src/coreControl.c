@@ -90,7 +90,7 @@ float _getPosition(_controlMode_t mode, float value)
   {
     result = USYSANGLE_TO_FLOAT(value);
     
-    // result = F_2(result);
+    result = F_2(result);
     
     return result;
   }
@@ -100,6 +100,7 @@ float _getPosition(_controlMode_t mode, float value)
     static const float T = 500E-6;   // 500мкс
     
     vusIntegral += speed * T;    
+    
     return vusIntegral;
   }
   return 0;
@@ -119,7 +120,7 @@ void resetVUSIntegral()
 float _saturation(float in, float *correction)
 {
 #define MAX_VALUE 60
-#define Ka 0.10066F
+#define Ka 0.7192F
   
   float out;
   if(in > MAX_VALUE) out = MAX_VALUE;
@@ -169,11 +170,36 @@ typedef struct
   float b1;
 } f_1_struct_t;
 
-static f_1_struct_t f_1_struct = {.a0 = -0.9484F,
-                                  .b0 = -0.02641F,
-                                  .b1 = 1,
+// Работает
+// static f_1_struct_t f_1_struct = {.a0 = -0.9484F,
+//                                   .b0 = 1,
+//                                   .b1 = -0.02641F,
+//                                   .y_prev = 0,
+//                                   .x_prev = 0};
+
+
+// Эксперимент
+// static f_1_struct_t f_1_struct = {.a0 = -0.844128F,
+//                                   .b0 = 1,
+//                                   .b1 = -0.08053F,
+//                                   .y_prev = 0,
+//                                   .x_prev = 0};
+
+// эксперимент медленный Treq=1 Lro = 1.8. Работало в ВУС и арретир
+// static f_1_struct_t f_1_struct = {.a0 = -0.973452F,
+//                                   .b0 = 1,
+//                                   .b1 = -0.013727F,
+//                                   .y_prev = 0,
+//                                   .x_prev = 0};
+
+
+// эксперимент более быстрые Treq=0.25, Lro=1.2. Хорошо работает для ВУС, хуже для арретир
+static f_1_struct_t f_1_struct = {.a0 = -0.952194F,
+                                  .b0 = 1,
+                                  .b1 = -0.24488F,
                                   .y_prev = 0,
                                   .x_prev = 0};
+
 
 // Фильтр 1-го порядка для фильтрации рассогласования на входе регулятора
 // Разностная формула: (b1z + b0) / (z + a0)
@@ -213,15 +239,28 @@ typedef struct
   
 } f_2_struct_t;
 
+// Рабочие коэффициенты (de facto фильтр первого порядка )
 static f_2_struct_t f_2_struct = {.a1 = -0.350920F,
                                   .a2 = 0.0F,
-                                  .b0 = 0,
-                                  .b1 = 0.649080F,
+                                  .b0 = 0.649080F,
+                                  .b1 = 0,
                                   .b2 = 0.0F,
                                   .y_prev = 0,
                                   .x_prev = 0,
                                   .x_prev_2 = 0,
                                   .y_prev_2 = 0};
+
+
+// Не рабочие коэффициенты. Таким фильтр должен быть по модели
+// static f_2_struct_t f_2_struct = {.a1 = -0.704020F,
+//                                   .a2 = 0.227419F,
+//                                   .b0 = 0.326263F,
+//                                   .b1 = 0.197136F,
+//                                   .b2 = 0.0F,
+//                                   .y_prev = 0,
+//                                   .x_prev = 0,
+//                                   .x_prev_2 = 0,
+//                                   .y_prev_2 = 0};
 
 // Фильтр 2-го порядка для фильтрации рассогласования на входе регулятора
 float F_2(float x)
@@ -297,6 +336,7 @@ void coreControlInit()
   F_1_reset();
 }
 
+float dbgDusIntegral;
 
 // Алгоритм управления
 void coreMove()
@@ -304,11 +344,13 @@ void coreMove()
   static float errorCorrection = 0;
   _controlMode_t mode = _getCurrentMode();
   
-  float startValue = (mode == CTRL_MODE_ARRETIER) ? g_sysAngle360 : dusAmplitude;
+  float startValue = (mode == CTRL_MODE_ARRETIER) ? g_sysAngle360 : (float)dusAmplitude;
   float endValue = (mode == CTRL_MODE_ARRETIER) ? arretierRequiredAngleU32 : constantSpeedCode;
 
-  float currentPosition = _getPosition(mode, startValue);
+  float currentPosition = _getPosition(mode, (float)startValue);
   float endPosition = (mode == CTRL_MODE_ARRETIER) ? _getPosition(mode, endValue) : 0; 
+  
+   dbgDusIntegral = currentPosition;
   
   float delta = endPosition - currentPosition;  
   delta = F_1(delta);
