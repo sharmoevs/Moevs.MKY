@@ -32,11 +32,7 @@ void testfunc();
 extern CanSoftwareBuffer_t *canmonitorSoftBuffer;
 extern CanSoftwareBuffer_t *tangageControlSoftBuffer;
 
-/*
-Сделать режим первичной настройкой с заданием коэффициентов и всего остального
-Округление выдаваемых координат по арингу к ближайшему возможному (реальный угол 9.99999, а отображается как 9.99223)
 
-*/
 
 
 int main()
@@ -56,7 +52,7 @@ int main()
   gk_init();                    // инициализация режима ГК
   coreControlInit();
   
-  timer_setEnable(MDR_TIMER2, 1);
+  //timer_setEnable(MDR_TIMER2, 1); // управление перенесено в таймер 4
   NVIC_EnableIRQ(CAN1_IRQn);    // разрешение прерываний can. Чтобы после перепрограммирования загрузчики были инициализированы
 
   
@@ -93,14 +89,15 @@ void TIMER4_IRQHandler()
     system_time++;
   }
    
+  
   dus_getNextSample();          // отсчет с ДУС
   angle_getNextSampleX32();     // отсчет с датчика угла 
-  angle_getVelocityFromAngle(); // рассчитать скорость по углу
-  //dus_calibrate();              // калибровка ДУС
-  gk_checkSpeedProtection();    // средняя скорость  
-  canBusTest_sendNext();        // тест шины CAN
-    
-      
+  gk_checkSpeedProtection();    // средняя скорость 
+  //dus_calibrate();              // калибровка ДУС    
+  coreMove();
+  
+  
+  
   // Отправка угла и проч
   static uint32_t timer = 0;
   if(elapsed(&timer, 1))
@@ -116,7 +113,7 @@ void TIMER2_IRQHandler()
   MDR_TIMER2->STATUS &= ~TIMER_STATUS_CNT_ARR_EVENT; // сбросить флаг
 
   //gk_moveNext();
-  coreMove();
+  //coreMove();
 }
 
 
@@ -134,7 +131,7 @@ void stopwatchTestFunc(int delayMs)
       //uint16_t code = adc_getVelocityCode();
       //dus_filter(0);  
     __STOP_STOPWATCH      
-   canTerminal_printf("elapsed = %d",  __STOPWATCH_ELAPSED);
+   canMonitor_printf("elapsed = %d",  __STOPWATCH_ELAPSED);
    
    delay_us(delayMs*1000);
 }

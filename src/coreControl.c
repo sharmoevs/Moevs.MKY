@@ -96,10 +96,11 @@ float _getPosition(_controlMode_t mode, float value)
   }
   if(mode == CTRL_MODE_VUS)  // VUS
   {
-    float speed = DUS_CONVERT_TO_DEGREES_PER_SEC(value);
-    static const float T = 500E-6;   // 500мкс
+    float endspeed = DUS_CONVERT_TO_DEGREES_PER_SEC(constantSpeedCode);    
+    float speed = DUS_CONVERT_TO_DEGREES_PER_SEC(value) - endspeed;
+    //static const float T = 500E-6;   // 500мкс
     
-    vusIntegral += speed * T;    
+    vusIntegral += speed * DUS_SAMPLING_PERIOD_sec;    
     
     return vusIntegral;
   }
