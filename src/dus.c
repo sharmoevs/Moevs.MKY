@@ -110,7 +110,7 @@ float dus_convertCodeToFloatVelocity(uint16_t code)
 
 
 
-static float k = 0.0001F;
+static float k = 0.7F; //0.0001F;
 static float yavg = 0;
 
 void dusHardFilterReset()

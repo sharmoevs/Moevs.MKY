@@ -102,6 +102,12 @@ void readUserDataFromFlash()
    koef_D = k * 156.94F;
    
 
+#if DUS_SAMPLING_FREQUENCY == 8000
+   koef_P = k * 0.160560F;
+   koef_I = k * 0.000238F;
+   koef_D = k * 38.381404F;
+#endif
+   
    
    
    dusCalibrationKoef = *((double*)DUS_KORR_KOER_ADDR);

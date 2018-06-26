@@ -140,6 +140,11 @@ float _saturation(float in, float *correction)
 #define MAX_VALUE 60
 #define Ka 0.7192F
   
+#if DUS_SAMPLING_FREQUENCY == 8000
+  #undef Ka
+  #define Ka 10.468302F  
+#endif
+  
   float out;
   if(in > MAX_VALUE) out = MAX_VALUE;
   else if(in < -MAX_VALUE) out = -MAX_VALUE;
