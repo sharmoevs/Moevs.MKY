@@ -15,4 +15,7 @@ uint16_t dus_getNextSample();
 float    dus_convertCodeToFloatVelocity(uint16_t code);
 
 
+void dusHardFilterReset();
+float dusHardFilter(float in);
+
 #endif //__DUS_H__

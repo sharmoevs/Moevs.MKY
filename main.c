@@ -81,6 +81,7 @@ int main()
 // Обработчик прерывания Timer4 - Фильтр ДУС
 void TIMER4_IRQHandler()
 {
+    __START_STOPWATCH
   MDR_TIMER4->STATUS &= ~TIMER_STATUS_CNT_ARR_EVENT;                            // сбросить флаг
   static uint8_t numOfIrq = 0;
   if(++numOfIrq == DUS_TIMER_COUNT_PER_ms)
@@ -93,7 +94,10 @@ void TIMER4_IRQHandler()
   dus_getNextSample();          // отсчет с ДУС
   angle_getNextSampleX32();     // отсчет с датчика угла 
   gk_checkSpeedProtection();    // средняя скорость 
-  //dus_calibrate();              // калибровка ДУС    
+  //dus_calibrate();              // калибровка ДУС
+  
+  speedCalibration();           // калибровка скорости  
+  gkModeControl();
   coreMove();
   
   
@@ -105,6 +109,11 @@ void TIMER4_IRQHandler()
     canMonitor_sendAngle();             // текущий угол
     canMonitor_sendCourseVelocity();    // угловая скорость
   }  
+  
+  
+  
+    __STOP_STOPWATCH
+   static uint32_t tt = 0;  if(elapsed(&tt, 100))canMonitor_printf("elapsed = %dus",  __STOPWATCH_ELAPSED);
 }
 
 // Обработчик прерывания Timer2 - Управление ГК

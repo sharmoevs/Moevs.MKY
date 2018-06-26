@@ -60,6 +60,7 @@ typedef enum
 
 
 
+void speedCalibration();
 void dus_calibrate();
 void dusCalibration_init(uint16_t totalSamplesCount, uint32_t calibrationInterval);
 

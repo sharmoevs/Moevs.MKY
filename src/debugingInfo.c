@@ -13,7 +13,7 @@ uint8_t debugInfo_globalEnable = 0;     // общее разрешение от�
 uint8_t debugInfo_velocityEnable = 0;   // передача скорости
 uint8_t debugInfo_uprEnable = 0;        // передача управляющего сигнала
 uint8_t debugInfo_angleEnable = 0;      // передача угла
-uint8_t debugInfo_testValue1Enable = 0; // передача тестового значения 1
+uint8_t debugInfo_testValue1Enable = 1; // передача тестового значения 1
 
 
 

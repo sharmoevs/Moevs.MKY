@@ -1078,3 +1078,48 @@ void setPwmFromUprCode(float uprCode)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Режим работы ГК
+void gkModeControl()
+{
+  switch(gk_controlMode)
+  {
+    case GkMode_Initialize: // Инициализация
+      {
+         static uint8_t initDone = 0;
+         if(initDone) return;
+        
+         if(system_time < 1000) return;
+         arretierRequiredAngleU32 = g_sysAngle360; //angle_convertCmdS2SysU(0*128, g_hardwareZeroAngleCorrection, MAX_SYSANGLE_CODE);
+         gk_controlMode = GkMode_AR;
+         initDone = 1;
+      }
+      break;
+    default : return;    
+  }
+      
+}
+
+
+
+

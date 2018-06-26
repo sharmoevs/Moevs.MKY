@@ -110,4 +110,7 @@ uint8_t gk_setModeSelfControl();           // Самоконтроль
 void gk_setModeDusTemperatureCalibration();// Калибровка ДУС по температуре
 
 
+
+void gkModeControl();
+
 #endif //__GK_CONTROL_MODE_H__

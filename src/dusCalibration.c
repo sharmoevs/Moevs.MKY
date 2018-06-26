@@ -24,6 +24,7 @@ extern uint16_t         dusFilteredCode;
 extern uint32_t         g_sysAngle360;
 extern uint32_t         arretierRequiredAngleU32;
 
+float g_averageSpeedCorrection = 0;            // корректировка нуля ДУС
 uint8_t dbg_dusCorrectionEnable = 1;    // включить поправку к ДУС
 int16_t  dusCodeAmmend = 7;             // попкравка к АЦП ДУС
 uint32_t g_arCalibratedAngle = 0;       // угол в котором откалибровались в последний раз
@@ -49,6 +50,7 @@ int16_t _getCalibrationCoeff(int16_t temperature, DusCalibrationCoefDestination_
 // Калибровка ДУС
 void dus_calibrate()
 {
+  /*
   static GKControlMode_t previousGkControlMode;
   static GKControlMode_t currentGkControlMode;
   static uint32_t dusCorrectionTime = 0;        // время калибровки ДУС
@@ -83,7 +85,46 @@ void dus_calibrate()
   {
     dusCodeAmmend = _getCalibrationCoeff(dusTemperature, &dusCalibCoefDestination);
   }
+  */
 }
+
+void speedCalibration()
+{
+  extern float g_currentSpeedFromDus;
+  static int AVERAGE_CNT = DUS_SAMPLING_FREQUENCY;
+  static float accum = 0;
+  static int i = 0;
+  
+  switch(gk_controlMode)
+  {
+    case GkMode_AR: // Внешнее управление по углу
+    case GkMode_TP: // Транспортное положение
+    case GkMode_Initialize: // Инициализация по включению питания
+      if(i < AVERAGE_CNT)
+      {
+        accum += g_currentSpeedFromDus;
+        i++;
+      }
+      else
+      {
+        g_averageSpeedCorrection = accum / DUS_SAMPLING_FREQUENCY;
+        accum = 0;
+        i = 0;
+      }
+      break;
+      
+    default:
+      {
+        accum = 0;
+        i = 0;
+      }
+      break;
+  }
+}
+
+
+
+
 
 
 

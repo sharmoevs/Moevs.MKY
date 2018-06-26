@@ -13,7 +13,7 @@ uint16_t dusRawCode;            // значение с ДУС после АЦП
 uint16_t dusFilteredCode;       // значение с ДУС после цифрового фильтра
 uint16_t dusCode;               // значение с ДУС после оцифровки и корректировки
 int16_t dusAmplitude;           // амплитуда сигнала относительно уровня 2047
-
+float g_currentSpeedFromDus;    // текущая скорость в градусах/сек
 
 
 uint16_t _dus_filter(uint16_t code);
@@ -28,6 +28,7 @@ uint16_t dus_getNextSample()
   dusCode         = _dus_correct(dusFilteredCode); // корректировка  
   dusAmplitude    = 0x7FF - dusCode;               // амплитуда ДУС относительно уровня 2047
   
+  g_currentSpeedFromDus = DUS_CONVERT_TO_DEGREES_PER_SEC(dusAmplitude);
   return dusCode;
 }
 
@@ -104,3 +105,24 @@ float dus_convertCodeToFloatVelocity(uint16_t code)
    return velocityF;
 }
 
+
+
+
+
+
+static float k = 0.0001F;
+static float yavg = 0;
+
+void dusHardFilterReset()
+{
+  yavg = 0;
+}
+
+float dusHardFilter(float in)
+{   
+  yavg = k * in + (1.0F - k) * yavg;
+  
+  float out = yavg;
+  
+  return out;
+}

@@ -61,7 +61,7 @@ _controlMode_t _getCurrentMode()
       
     case GkMode_AR: // Внешнее управление по углу
     case GkMode_TP: // Транспортное положение
-    case GkMode_Initialize: // Инициализация по включению питания
+    //case GkMode_Initialize: // Инициализация по включению питания
     case GkMode_TudaSudaAR: // Движение туда-сюда в Арретире
       return CTRL_MODE_ARRETIER;
       
@@ -96,13 +96,30 @@ float _getPosition(_controlMode_t mode, float value)
   }
   if(mode == CTRL_MODE_VUS)  // VUS
   {
+    extern float g_currentSpeedFromDus;
+    extern float g_averageSpeedCorrection;
+    float curSpeed = g_currentSpeedFromDus + g_averageSpeedCorrection;
+    float endSpeed = DUS_CONVERT_TO_DEGREES_PER_SEC(constantSpeedCode);    
+    
+    if(endSpeed == 0) // Калибровка в режиме ВУС0
+    {      
+      curSpeed = dusHardFilter(curSpeed);
+    }
+    else dusHardFilterReset();
+    
+    float delta = curSpeed - endSpeed;
+       
+    vusIntegral += delta * DUS_SAMPLING_PERIOD_sec;   
+    return vusIntegral;
+    
+    /*
     float endspeed = DUS_CONVERT_TO_DEGREES_PER_SEC(constantSpeedCode);    
     float speed = DUS_CONVERT_TO_DEGREES_PER_SEC(value) - endspeed;
-    //static const float T = 500E-6;   // 500мкс
-    
+       
     vusIntegral += speed * DUS_SAMPLING_PERIOD_sec;    
-    
-    return vusIntegral;
+   
+    return vusIntegral; 
+    */
   }
   return 0;
 }
