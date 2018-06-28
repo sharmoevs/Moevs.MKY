@@ -46,17 +46,18 @@ uint16_t as_readData()
 {
   uint8_t dataH, dataL;
   uint16_t result;
+  uint16_t delay = 2;
 
-  delay_tics(20);   // задержка после выбора микросхемы
+  delay_tics(delay);   // задержка после выбора микросхемы
   AS_INHIBIT_LO;  
-  delay_tics(20);
+  delay_tics(delay);
   
   AS_BYTE_SELECT_LO;
-  delay_tics(20);
+  delay_tics(delay);
   
   dataL = AS_DATA;
   AS_BYTE_SELECT_HI;
-  delay_tics(20);
+  delay_tics(delay);
   
   dataH = AS_DATA;  
   AS_INHIBIT_HI;

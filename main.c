@@ -81,7 +81,7 @@ int main()
 // Обработчик прерывания Timer4 - Фильтр ДУС
 void TIMER4_IRQHandler()
 {
-    __START_STOPWATCH
+ //   __START_STOPWATCH
   MDR_TIMER4->STATUS &= ~TIMER_STATUS_CNT_ARR_EVENT;                            // сбросить флаг
   static uint8_t numOfIrq = 0;
   if(++numOfIrq == DUS_TIMER_COUNT_PER_ms)
@@ -112,8 +112,8 @@ void TIMER4_IRQHandler()
   
   
   
-    __STOP_STOPWATCH
-   static uint32_t tt = 0;  if(elapsed(&tt, 100))canMonitor_printf("elapsed = %dus",  __STOPWATCH_ELAPSED);
+  //  __STOP_STOPWATCH
+  // static uint32_t tt = 0;  if(elapsed(&tt, 100))canMonitor_printf("elapsed = %dus",  __STOPWATCH_ELAPSED);
 }
 
 // Обработчик прерывания Timer2 - Управление ГК

@@ -29,7 +29,7 @@
 #define VELOCITY_PROTECTION_THRESHOLD   50.0
 
 // Частота дискретизации ДУС
-#define DUS_SAMPLING_FREQUENCY          2000                                    // частота дискеретизации ДУС
+#define DUS_SAMPLING_FREQUENCY          8000                                    // частота дискеретизации ДУС
 #define DUS_SAMPLING_TIMER_TIMEOUT_mcs  (1000000/DUS_SAMPLING_FREQUENCY)        // период таймера ДУС, мкс
 #define DUS_SAMPLING_PERIOD_sec         ((float)DUS_SAMPLING_TIMER_TIMEOUT_mcs * 1E-6)  // частота дискретизации в секундах
 #define DUS_TIMER_COUNT_PER_ms          (1000/DUS_SAMPLING_TIMER_TIMEOUT_mcs)   // кол-во отсчетов таймера ДУС за миллисекунду

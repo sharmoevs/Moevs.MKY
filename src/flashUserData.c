@@ -103,9 +103,24 @@ void readUserDataFromFlash()
    
 
 #if DUS_SAMPLING_FREQUENCY == 8000
-   koef_P = k * 0.160560F;
-   koef_I = k * 0.000238F;
-   koef_D = k * 38.381404F;
+   // Lreq - характеристическое число замкнутой системы, чем оно больше, тем больше быстродейсвие системы
+   // лучше подавляет помехи по силе, но более восприимчива к помехам датччика
+   
+   // Lreq = 18.4   Lrho = 1.2  freq = 8000
+  // koef_P = 1.284481F;
+  // koef_I = 0.00095F;
+  // koef_D = 627.77F;
+   
+   // Lreq = 36.8   Lrho = 1.2  freq = 8000 - срывается 
+  // koef_P = 10.27F;
+  // koef_I = 0.0152F;
+  // koef_D = 2538.8F;
+      
+   // Lreq = 23   Lrho = 1.2  freq = 8000  
+   koef_P = 2.5F;
+   koef_I = 0.002322F;
+   koef_D = 985.2F;
+   
 #endif
    
    

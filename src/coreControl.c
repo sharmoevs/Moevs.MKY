@@ -138,11 +138,18 @@ void resetVUSIntegral()
 float _saturation(float in, float *correction)
 {
 #define MAX_VALUE 60
-#define Ka 0.7192F
+//#define Ka 0.7192F
   
+  static float Ka = 0.7192F;
 #if DUS_SAMPLING_FREQUENCY == 8000
-  #undef Ka
-  #define Ka 10.468302F  
+  // Lreq = 18.4   Lrho = 1.2  freq = 8000
+  //Ka = 1.294208F;
+  
+// Lreq = 36.8   Lrho = 1.2  freq = 8000 - срывается 
+//  Ka = 0.1608F;
+  
+  // Lreq = 23   Lrho = 1.2  freq = 8000
+  Ka = 0.6611F;
 #endif
   
   float out;
@@ -215,6 +222,7 @@ typedef struct
 //                                   .y_prev = 0,
 //                                   .x_prev = 0};
 
+#if DUS_SAMPLING_FREQUENCY != 8000
 
 // эксперимент более быстрые Treq=0.25, Lro=1.2. Хорошо работает для ВУС, хуже для арретир
 static f_1_struct_t f_1_struct = {.a0 = -0.952194F,
@@ -223,6 +231,31 @@ static f_1_struct_t f_1_struct = {.a0 = -0.952194F,
                                   .y_prev = 0,
                                   .x_prev = 0};
 
+#else // Для f = 8000
+
+// Lreq = 18.4   Lrho = 1.2  freq = 8000
+//static f_1_struct_t f_1_struct = {.a0 = -0.9878F,
+//                                  .b0 = 1,
+//                                  .b1 = -0.7516F,
+//                                  .y_prev = 0,
+//                                  .x_prev = 0};
+//
+
+// Lreq = 36.8   Lrho = 1.2  freq = 8000 - срывается 
+//static f_1_struct_t f_1_struct = {.a0 = -0.9957F,
+//                                  .b0 = 1,
+//                                  .b1 = -0.7531F,
+//                                  .y_prev = 0,
+//                                  .x_prev = 0};
+
+
+  // Lreq = 23   Lrho = 1.2  freq = 8000
+static f_1_struct_t f_1_struct = {.a0 = -0.9848F,
+                                  .b0 = 1,
+                                  .b1 = -0.7520F,
+                                  .y_prev = 0,
+                                  .x_prev = 0};
+#endif
 
 // Фильтр 1-го порядка для фильтрации рассогласования на входе регулятора
 // Разностная формула: (b1z + b0) / (z + a0)
@@ -262,6 +295,9 @@ typedef struct
   
 } f_2_struct_t;
 
+
+#if DUS_SAMPLING_FREQUENCY != 8000
+
 // Рабочие коэффициенты (de facto фильтр первого порядка )
 static f_2_struct_t f_2_struct = {.a1 = -0.350920F,
                                   .a2 = 0.0F,
@@ -273,7 +309,6 @@ static f_2_struct_t f_2_struct = {.a1 = -0.350920F,
                                   .x_prev_2 = 0,
                                   .y_prev_2 = 0};
 
-
 // Не рабочие коэффициенты. Таким фильтр должен быть по модели
 // static f_2_struct_t f_2_struct = {.a1 = -0.704020F,
 //                                   .a2 = 0.227419F,
@@ -284,6 +319,70 @@ static f_2_struct_t f_2_struct = {.a1 = -0.350920F,
 //                                   .x_prev = 0,
 //                                   .x_prev_2 = 0,
 //                                   .y_prev_2 = 0};
+
+#else // Для f = 8000
+
+ // Lreq = 23   Lrho = 1.2  freq = 8000
+// freqСut = 333Гц
+//static f_2_struct_t f_2_struct = {.a1 = -1.6336F,
+//                                 .a2 = 0.69056F,
+//                                 .b0 = 0.030235F,
+//                                 .b1 = 0.026721,
+//                                 .b2 = 0.0F,
+//                                 .y_prev = 0,
+//                                 .x_prev = 0,
+//                                 .x_prev_2 = 0,
+//                                 .y_prev_2 = 0};
+//
+
+// freqСut = 1rГц
+//static f_2_struct_t f_2_struct = {.a1 = -0.975239F,
+//                                  .a2 = 0.329322F,
+//                                  .b0 = 0.209810F,
+//                                  .b1 = 0.144272,
+//                                  .b2 = 0.0F,
+//                                  .y_prev = 0,
+//                                  .x_prev = 0,
+//                                  .x_prev_2 = 0,
+//                                  .y_prev_2 = 0};
+
+
+//// Фильтр первого порядка freqCut = 1кГц - рабочий
+//static f_2_struct_t f_2_struct = {.a1 = -0.455938F,
+//                                  .a2 = 0.0F,
+//                                  .b0 = 0.544062,
+//                                  .b1 = 0.0,
+//                                  .b2 = 0.0F,
+//                                  .y_prev = 0,
+//                                  .x_prev = 0,
+//                                  .x_prev_2 = 0,
+//                                  .y_prev_2 = 0};
+//
+//// freqCut = 500Гц
+//static f_2_struct_t f_2_struct = {.a1 = -0.854636F,
+//                                  .a2 = -0,
+//                                  .b0 =  0.145364,
+//                                  .b1 = 0.0,
+//                                  .b2 = 0.0F,
+//                                  .y_prev = 0,
+//                                  .x_prev = 0,
+//                                  .x_prev_2 = 0,
+//                                  .y_prev_2 = 0};
+
+// задержка по времени
+static f_2_struct_t f_2_struct = {.a1 = -0.0F,
+                                  .a2 = 0.0F,
+                                  .b0 = 1,
+                                  .b1 = 0.0,
+                                  .b2 = 0.0F,
+                                  .y_prev = 0,
+                                  .x_prev = 0,
+                                  .x_prev_2 = 0,
+                                  .y_prev_2 = 0};
+
+#endif
+
+
 
 // Фильтр 2-го порядка для фильтрации рассогласования на входе регулятора
 float F_2(float x)
@@ -309,6 +408,45 @@ void F_2_reset()
   f_2_struct.y_prev = 0;
   f_2_struct.x_prev_2 = 0;
   f_2_struct.y_prev_2 = 0;
+}
+
+
+
+
+
+// Префильтр
+
+f_1_struct_t prefilter = {.a0 = -0.9981F,
+                          .b0 = 0.0F,
+                          .b1 = 0.0019F,
+                          .y_prev = 0,
+                          .x_prev = 0 };
+
+
+float filter_1(f_1_struct_t *filter,  float x);
+void  filter_1_init(f_1_struct_t *filter,  float startValue);
+void  filter_1_reset(f_1_struct_t *filter);
+
+float filter_1(f_1_struct_t *filter,  float x)
+{
+  float y = -filter->a0 * filter->y_prev + filter->b1 * filter->x_prev + filter->b0 * x;
+  
+  filter->x_prev = x;
+  filter->y_prev = y;
+  
+  return y;
+}
+
+void filter_1_init(f_1_struct_t *filter, float startValue)
+{
+  filter->x_prev = startValue;
+  filter->y_prev = startValue;
+}
+
+void filter_1_reset(f_1_struct_t *filter)
+{
+  filter->x_prev = 0;
+  filter->y_prev = 0;
 }
 
 
@@ -357,6 +495,10 @@ void coreControlInit()
 {
   PID_reset();
   F_1_reset();
+  
+  
+  angle_getNextSampleX32();     // отсчет с датчика угла 
+  filter_1_init(&prefilter, USYSANGLE_TO_FLOAT(g_sysAngle360));
 }
 
 float dbgDusIntegral;
@@ -373,7 +515,10 @@ void coreMove()
   float currentPosition = _getPosition(mode, (float)startValue);
   float endPosition = (mode == CTRL_MODE_ARRETIER) ? _getPosition(mode, endValue) : 0; 
   
-   dbgDusIntegral = currentPosition;
+  dbgDusIntegral = currentPosition;
+  
+  // префильтр
+  if(mode == CTRL_MODE_ARRETIER) endPosition = filter_1(&prefilter, endPosition);
   
   float delta = endPosition - currentPosition;  
   delta = F_1(delta);
