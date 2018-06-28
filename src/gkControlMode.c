@@ -224,12 +224,16 @@ void gk_setModeEngineOffBySpeedProtection()
 // Арретир
 void gk_setModeAR(uint32_t sysAngleU)                                          //*****
 {
+  extern void onARStartMoving();
+  
   if(!_gk_canChangeMode()) return;
   
-  __disable_irq();
+   __disable_irq();
   gk_controlMode = GkMode_AR;
   arretierRequiredAngleU32 = sysAngleU;
   __enable_irq();
+  
+  onARStartMoving();
   pid_setEnable(1);
 }
 

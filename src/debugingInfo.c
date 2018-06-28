@@ -47,7 +47,7 @@ void dbg_currentParametersService()
   */
   if(debugInfo_uprEnable)
   {
-    canMonitor_sendCourseUpr();         // рассогласование    
+    //canMonitor_sendCourseUpr();         // рассогласование    
   }
   /*
   if(debugInfo_angleEnable)
@@ -68,7 +68,7 @@ void dbg_currentParametersService()
     extern CanSoftwareBuffer_t *tangageControlSoftBuffer;
     extern float dbgDusIntegral;
     
-    canMonitor_sendTestValue1(dbgDusIntegral);
+    //canMonitor_sendTestValue1(dbgDusIntegral);
   }
 }
 

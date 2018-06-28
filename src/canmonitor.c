@@ -852,7 +852,7 @@ void canMonitor_sendPIDKoef()
 
 
 // Отпрвить значение угла
-void canMonitor_sendAngle()
+void canMonitor_sendAngleCode()
 {
   extern uint32_t g_sysAngle360;
   uint32_t angle = g_sysAngle360;
@@ -985,3 +985,42 @@ void canMonitor_GsSendState()
   canMonitor_send(msg, sizeof(msg));
 }
 
+
+void _canMonitor_sendValue(uint8_t msgID, float value);
+
+void _canMonitor_sendValue(uint8_t msgID, float value)
+{
+  uint8_t *p = (uint8_t*)&value;
+  uint8_t msg[5];
+  msg[0] = msgID;
+  msg[1] = p[0]; 
+  msg[2] = p[1];
+  msg[3] = p[2];
+  msg[4] = p[3];
+  canMonitor_send(msg, sizeof(msg));
+}
+
+void canMonitor_sendAngle(float value)
+{
+  _canMonitor_sendValue(CANMONITOR_TX_VALUE_1, value);
+}
+
+void canMonitor_sendSpeed(float value)
+{
+  _canMonitor_sendValue(CANMONITOR_TX_VALUE_2, value);
+}
+
+void canMonitor_sendUpr(float value)
+{
+  _canMonitor_sendValue(CANMONITOR_TX_VALUE_3, value);
+}
+
+void canMonitor_sendValue1(float value)
+{
+  _canMonitor_sendValue(CANMONITOR_TX_VALUE_4, value);
+}
+
+void canMonitor_sendValue2(float value)
+{
+  _canMonitor_sendValue(CANMONITOR_TX_VALUE_5, value);
+}

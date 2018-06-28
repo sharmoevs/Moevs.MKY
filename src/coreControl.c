@@ -5,7 +5,7 @@
 #include "angelSensor.h"
 #include "dus.h"
 #include "engineControl.h"
-
+#include <stdlib.h>
 
 
 typedef enum
@@ -90,7 +90,7 @@ float _getPosition(_controlMode_t mode, float value)
   {
     result = USYSANGLE_TO_FLOAT(value);
     
-    result = F_2(result);
+    // result = F_2(result);
     
     return result;
   }
@@ -108,7 +108,7 @@ float _getPosition(_controlMode_t mode, float value)
     else dusHardFilterReset();
     
     float delta = curSpeed - endSpeed;
-       
+
     vusIntegral += delta * DUS_SAMPLING_PERIOD_sec;   
     return vusIntegral;
     
@@ -150,6 +150,9 @@ float _saturation(float in, float *correction)
   
   // Lreq = 23   Lrho = 1.2  freq = 8000
   Ka = 0.6611F;
+  
+  // Lreq = 18.4   Lrho = 1.2  freq = 8000, Kmd
+  // Ka = 2.1375F;
 #endif
   
   float out;
@@ -234,12 +237,20 @@ static f_1_struct_t f_1_struct = {.a0 = -0.952194F,
 #else // Для f = 8000
 
 // Lreq = 18.4   Lrho = 1.2  freq = 8000
-//static f_1_struct_t f_1_struct = {.a0 = -0.9878F,
-//                                  .b0 = 1,
-//                                  .b1 = -0.7516F,
-//                                  .y_prev = 0,
-//                                  .x_prev = 0};
-//
+static f_1_struct_t f_1_struct = {.a0 = -0.9878F,
+                                  .b0 = 1,
+                                  .b1 = -0.7516F,
+                                  .y_prev = 0,
+                                  .x_prev = 0};
+
+// Lreq = 18.4   Lrho = 1.2  freq = 8000, Kmd
+// static f_1_struct_t f_1_struct = {.a0 = -0.9924F,
+//                                   .b0 = 1,
+//                                   .b1 = -0.7557F,
+//                                   .y_prev = 0,
+//                                   .x_prev = 0};
+
+
 
 // Lreq = 36.8   Lrho = 1.2  freq = 8000 - срывается 
 //static f_1_struct_t f_1_struct = {.a0 = -0.9957F,
@@ -250,11 +261,11 @@ static f_1_struct_t f_1_struct = {.a0 = -0.952194F,
 
 
   // Lreq = 23   Lrho = 1.2  freq = 8000
-static f_1_struct_t f_1_struct = {.a0 = -0.9848F,
-                                  .b0 = 1,
-                                  .b1 = -0.7520F,
-                                  .y_prev = 0,
-                                  .x_prev = 0};
+// static f_1_struct_t f_1_struct = {.a0 = -0.9848F,
+//                                   .b0 = 1,
+//                                   .b1 = -0.7520F,
+//                                   .y_prev = 0,
+//                                   .x_prev = 0};
 #endif
 
 // Фильтр 1-го порядка для фильтрации рассогласования на входе регулятора
@@ -324,16 +335,16 @@ static f_2_struct_t f_2_struct = {.a1 = -0.350920F,
 
  // Lreq = 23   Lrho = 1.2  freq = 8000
 // freqСut = 333Гц
-//static f_2_struct_t f_2_struct = {.a1 = -1.6336F,
-//                                 .a2 = 0.69056F,
-//                                 .b0 = 0.030235F,
-//                                 .b1 = 0.026721,
-//                                 .b2 = 0.0F,
-//                                 .y_prev = 0,
-//                                 .x_prev = 0,
-//                                 .x_prev_2 = 0,
-//                                 .y_prev_2 = 0};
-//
+// static f_2_struct_t f_2_struct = {.a1 = -1.6336F,
+//                                  .a2 = 0.69056F,
+//                                  .b0 = 0.030235F,
+//                                  .b1 = 0.026721,
+//                                  .b2 = 0.0F,
+//                                  .y_prev = 0,
+//                                  .x_prev = 0,
+//                                  .x_prev_2 = 0,
+//                                  .y_prev_2 = 0};
+
 
 // freqСut = 1rГц
 //static f_2_struct_t f_2_struct = {.a1 = -0.975239F,
@@ -348,16 +359,16 @@ static f_2_struct_t f_2_struct = {.a1 = -0.350920F,
 
 
 //// Фильтр первого порядка freqCut = 1кГц - рабочий
-//static f_2_struct_t f_2_struct = {.a1 = -0.455938F,
-//                                  .a2 = 0.0F,
-//                                  .b0 = 0.544062,
-//                                  .b1 = 0.0,
-//                                  .b2 = 0.0F,
-//                                  .y_prev = 0,
-//                                  .x_prev = 0,
-//                                  .x_prev_2 = 0,
-//                                  .y_prev_2 = 0};
-//
+static f_2_struct_t f_2_struct = {.a1 = -0.455938F,
+                                  .a2 = 0.0F,
+                                  .b0 = 0.544062,
+                                  .b1 = 0.0,
+                                  .b2 = 0.0F,
+                                  .y_prev = 0,
+                                  .x_prev = 0,
+                                  .x_prev_2 = 0,
+                                  .y_prev_2 = 0};
+
 //// freqCut = 500Гц
 //static f_2_struct_t f_2_struct = {.a1 = -0.854636F,
 //                                  .a2 = -0,
@@ -370,21 +381,21 @@ static f_2_struct_t f_2_struct = {.a1 = -0.350920F,
 //                                  .y_prev_2 = 0};
 
 // задержка по времени
-static f_2_struct_t f_2_struct = {.a1 = -0.0F,
-                                  .a2 = 0.0F,
-                                  .b0 = 1,
-                                  .b1 = 0.0,
-                                  .b2 = 0.0F,
-                                  .y_prev = 0,
-                                  .x_prev = 0,
-                                  .x_prev_2 = 0,
-                                  .y_prev_2 = 0};
+// static f_2_struct_t f_2_struct = {.a1 = -0.0F,
+//                                   .a2 = 0.0F,
+//                                   .b0 = 1,
+//                                   .b1 = 0.0,
+//                                   .b2 = 0.0F,
+//                                   .y_prev = 0,
+//                                   .x_prev = 0,
+//                                   .x_prev_2 = 0,
+//                                   .y_prev_2 = 0};
 
 #endif
 
 
 
-// Фильтр 2-го порядка для фильтрации рассогласования на входе регулятора
+// Фильтр 2-го порядка для фильтрации координаты
 float F_2(float x)
 {
   float y = -f_2_struct.a1 * f_2_struct.y_prev - 
@@ -503,6 +514,21 @@ void coreControlInit()
 
 float dbgDusIntegral;
 
+static float runningValue = 0;
+
+void onARStartMoving()
+{
+  float startValue = g_sysAngle360;
+  float currentPosition = _getPosition(CTRL_MODE_ARRETIER, (float)startValue);
+  
+  runningValue = currentPosition;
+}
+
+float g_pidOut;
+float g_Udump;
+float g_pidDelta;
+float g_profileDelta;
+
 // Алгоритм управления
 void coreMove()
 {
@@ -515,20 +541,68 @@ void coreMove()
   float currentPosition = _getPosition(mode, (float)startValue);
   float endPosition = (mode == CTRL_MODE_ARRETIER) ? _getPosition(mode, endValue) : 0; 
   
+  
+  /*
+   * Профилировщик позиции (только для АРРЕТИР!)
+   */
+  #define sgn(x) ((x) >= 0 ? +1 : -1)
+  #define fabs(x) ((x) > 0 ? (x) : -(x))
+  #define PROFILE_FREQ (8000) // in Hz
+  #define PROFILE_FREQ_COUNT (8000 / PROFILE_FREQ)  // TODO: 8 kHz parameter in firmware
+  #define SPEED (20.0F) // in grad/sec
+  static uint32_t ProfileCounter = 0;
+  
+  if (ProfileCounter++ >= PROFILE_FREQ_COUNT)
+  {
+      ProfileCounter = 1;
+      
+      // это значение должно быть менее ~ 3 градусов из-за оосбенности контура управления
+      float profileDelta = sgn(endPosition - runningValue) * SPEED / ((float)PROFILE_FREQ);
+      
+      g_profileDelta = runningValue;
+      
+      if (fabs(runningValue - endPosition) < fabs(profileDelta))
+      {
+        runningValue = endPosition;
+      }
+      else
+      {
+        runningValue += profileDelta;
+      }    
+  } 
+  
+  
+  // текущая позиция для контура ограничения скорости (Speed Saturation Contour)
+  static float currentPositionSSCPrev = 0;
+  float currentPositionSSC = F_2(_getPosition(mode, (float)startValue));
+  float currentSpeedSSC = (currentPositionSSC - currentPositionSSCPrev) * 8000.0F; // 8 kHz TODO: constant
+  currentPositionSSCPrev = currentPositionSSC;
+  
+    
   dbgDusIntegral = currentPosition;
   
-  // префильтр
-  if(mode == CTRL_MODE_ARRETIER) endPosition = filter_1(&prefilter, endPosition);
+  // профилировщик не имеет смысла для ВУС
+  if (mode == CTRL_MODE_VUS)
+    runningValue = endPosition;
   
-  float delta = endPosition - currentPosition;  
+  // префильтр
+  if(mode == CTRL_MODE_ARRETIER) endPosition = filter_1(&prefilter, runningValue);
+  
+  float delta = runningValue - currentPosition;  
   delta = F_1(delta);
+  
+  g_pidDelta = delta;
   
   float delta_for_i = delta - errorCorrection;
   float pwmWithoutSaturation = PID(delta, delta_for_i);
   float out = _saturation(pwmWithoutSaturation, &errorCorrection);
+  g_pidOut = out;
   
-  lastPidUprValue = out;
+  const float Kmd = 0; //1.6312F;
   
+  // ограничение по скорости здесь
+  g_Udump = Kmd * currentSpeedSSC;
+  out = out - g_Udump;
   
   if(mode == CTRL_MODE_ENGINE_OFF) return;
   _setPwm(out);

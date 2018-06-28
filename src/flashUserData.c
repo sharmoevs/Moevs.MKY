@@ -107,9 +107,14 @@ void readUserDataFromFlash()
    // лучше подавляет помехи по силе, но более восприимчива к помехам датччика
    
    // Lreq = 18.4   Lrho = 1.2  freq = 8000
-  // koef_P = 1.284481F;
-  // koef_I = 0.00095F;
-  // koef_D = 627.77F;
+   koef_P = 1.284481F;
+   koef_I = 0.00095F;
+   koef_D = 627.77F;
+   
+    // Lreq = 18.4   Lrho = 1.2  freq = 8000, Kmp
+   // koef_P = 1.284481F;
+   // koef_I = 0.00095F;
+   // koef_D = 230.13F;
    
    // Lreq = 36.8   Lrho = 1.2  freq = 8000 - срывается 
   // koef_P = 10.27F;
@@ -117,9 +122,11 @@ void readUserDataFromFlash()
   // koef_D = 2538.8F;
       
    // Lreq = 23   Lrho = 1.2  freq = 8000  
-   koef_P = 2.5F;
-   koef_I = 0.002322F;
-   koef_D = 985.2F;
+   // koef_P = 2.5F;
+   // koef_I = 0.002322F;
+   // koef_D = 985.2F;
+   
+   
    
 #endif
    

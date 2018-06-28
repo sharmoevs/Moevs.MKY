@@ -104,10 +104,22 @@ void TIMER4_IRQHandler()
   
   // Отправка угла и проч
   static uint32_t timer = 0;
-  if(elapsed(&timer, 1))
-  {
-    canMonitor_sendAngle();             // текущий угол
-    canMonitor_sendCourseVelocity();    // угловая скорость
+  if(elapsed(&timer, 5))
+  {    
+    extern float g_pidOut;
+    extern float g_Udump;
+    extern float g_currentSpeedFromDus;
+    extern uint32_t g_sysAngle360;
+    extern float g_pidDelta;
+    extern float g_profileDelta;
+    float currentAngle = USYSANGLE_TO_FLOAT(g_sysAngle360);
+    
+    canMonitor_sendAngle(currentAngle);             // текущий угол
+    canMonitor_sendSpeed(g_currentSpeedFromDus);
+    canMonitor_sendUpr(g_pidOut);
+    canMonitor_sendValue1(g_profileDelta);
+
+    canMonitor_sendCourseVelocity();    // угловая скорость и средняя
   }  
   
   

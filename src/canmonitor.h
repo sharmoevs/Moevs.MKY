@@ -30,6 +30,15 @@
 #define CANMONITOR_SET_MODE_TUDA_SUDA_AR        0x0F 
 #define CANMONITOR_SET_MODE_DUS_TEMP_CALIBRATION 0x12
 
+#define CANMONITOR_TX_VALUE_1                   0x20
+#define CANMONITOR_TX_VALUE_2                   0x21
+#define CANMONITOR_TX_VALUE_3                   0x22
+#define CANMONITOR_TX_VALUE_4                   0x23
+#define CANMONITOR_TX_VALUE_5                   0x24
+#define CANMONITOR_TX_VALUE_6                   0x25
+
+
+
 // Служебные команды
 #define CANMONITOR_DEBUG                        0xDB    // отладочная команда
 #define CANMONITOR_EXT_CMD_STRING_ID            0xBB    // идентификатор того, что  данные в расширенной команде нужно представлять как строку
@@ -105,7 +114,7 @@ void canMonitor_sendWorkingTime();      // время наработки
 void canMonitor_sendCourseVelocity();   // текущая угловая скорость
 void canMonitor_sendCourseUpr();        // управляющее воздействие
 void canMonitor_sendPIDKoef();          // отправить текущие значения коэф. ПИД-рег.
-void canMonitor_sendAngle();
+void canMonitor_sendAngleCode();
 void canMonitor_sendTestValue1(float value);
 void canMonitor_setModeTudaSudaVUS(uint8_t *buf, uint8_t len);
 void canMonitor_setModeTudaSudaAR(uint8_t *buf, uint8_t len);
@@ -115,6 +124,15 @@ void canMonitor_saveNewHardwareScaleCourse();
 void canMonitor_saveNewHardwareScaleTangage();
 void canMonitor_sendHardwareScaleOffsets();
 void canMonitor_GsSendState();          // отправить слово состояния ГС
+
+
+
+
+void canMonitor_sendAngle(float value);
+void canMonitor_sendSpeed(float value);
+void canMonitor_sendUpr(float value);
+void canMonitor_sendValue1(float value);
+void canMonitor_sendValue2(float value);
 
 
 #endif //__CANMONITOR_H__
