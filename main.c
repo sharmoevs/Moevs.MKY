@@ -117,7 +117,7 @@ void TIMER4_IRQHandler()
     canMonitor_sendAngle(currentAngle);             // текущий угол
     canMonitor_sendSpeed(g_currentSpeedFromDus);
     canMonitor_sendUpr(g_pidOut);
-    canMonitor_sendValue1(g_profileDelta);
+    canMonitor_sendValue1(g_pidDelta);
 
     canMonitor_sendCourseVelocity();    // угловая скорость и средняя
   }  

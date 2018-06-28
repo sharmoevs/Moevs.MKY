@@ -582,16 +582,20 @@ void coreMove()
   dbgDusIntegral = currentPosition;
   
   // профилировщик не имеет смысла для ВУС
-  if (mode == CTRL_MODE_VUS)
+  
+  // отключить профилировщик для тестов
+  // if (mode == CTRL_MODE_VUS)
     runningValue = endPosition;
   
   // префильтр
   if(mode == CTRL_MODE_ARRETIER) endPosition = filter_1(&prefilter, runningValue);
   
   float delta = runningValue - currentPosition;  
+  g_pidDelta = delta;
+  
   delta = F_1(delta);
   
-  g_pidDelta = delta;
+  
   
   float delta_for_i = delta - errorCorrection;
   float pwmWithoutSaturation = PID(delta, delta_for_i);
