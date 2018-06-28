@@ -582,9 +582,7 @@ void coreMove()
   dbgDusIntegral = currentPosition;
   
   // профилировщик не имеет смысла для ВУС
-  
-  // отключить профилировщик для тестов
-  // if (mode == CTRL_MODE_VUS)
+  if (mode == CTRL_MODE_VUS)
     runningValue = endPosition;
   
   // префильтр
