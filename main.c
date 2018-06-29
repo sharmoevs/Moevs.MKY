@@ -107,7 +107,6 @@ void TIMER4_IRQHandler()
   if(elapsed(&timer, 5))
   {    
     extern float g_pidOut;
-    extern float g_Udump;
     extern float g_currentSpeedFromDus;
     extern uint32_t g_sysAngle360;
     extern float g_pidDelta;

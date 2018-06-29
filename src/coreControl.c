@@ -237,11 +237,11 @@ static f_1_struct_t f_1_struct = {.a0 = -0.952194F,
 #else // Для f = 8000
 
 // Lreq = 18.4   Lrho = 1.2  freq = 8000
-static f_1_struct_t f_1_struct = {.a0 = -0.9878F,
-                                  .b0 = 1,
-                                  .b1 = -0.7516F,
-                                  .y_prev = 0,
-                                  .x_prev = 0};
+//static f_1_struct_t f_1_struct = {.a0 = -0.9878F,
+//                                  .b0 = 1,
+//                                  .b1 = -0.7516F,
+//                                  .y_prev = 0,
+//                                  .x_prev = 0};
 
 // Lreq = 18.4   Lrho = 1.2  freq = 8000, Kmd
 // static f_1_struct_t f_1_struct = {.a0 = -0.9924F,
@@ -261,11 +261,11 @@ static f_1_struct_t f_1_struct = {.a0 = -0.9878F,
 
 
   // Lreq = 23   Lrho = 1.2  freq = 8000
-// static f_1_struct_t f_1_struct = {.a0 = -0.9848F,
-//                                   .b0 = 1,
-//                                   .b1 = -0.7520F,
-//                                   .y_prev = 0,
-//                                   .x_prev = 0};
+ static f_1_struct_t f_1_struct = {.a0 = -0.9848F,
+                                   .b0 = 1,
+                                   .b1 = -0.7520F,
+                                   .y_prev = 0,
+                                   .x_prev = 0};
 #endif
 
 // Фильтр 1-го порядка для фильтрации рассогласования на входе регулятора
@@ -335,15 +335,15 @@ static f_2_struct_t f_2_struct = {.a1 = -0.350920F,
 
  // Lreq = 23   Lrho = 1.2  freq = 8000
 // freqСut = 333Гц
-// static f_2_struct_t f_2_struct = {.a1 = -1.6336F,
-//                                  .a2 = 0.69056F,
-//                                  .b0 = 0.030235F,
-//                                  .b1 = 0.026721,
-//                                  .b2 = 0.0F,
-//                                  .y_prev = 0,
-//                                  .x_prev = 0,
-//                                  .x_prev_2 = 0,
-//                                  .y_prev_2 = 0};
+ static f_2_struct_t f_2_struct = {.a1 = -1.6336F,
+                                  .a2 = 0.69056F,
+                                  .b0 = 0.030235F,
+                                  .b1 = 0.026721,
+                                  .b2 = 0.0F,
+                                  .y_prev = 0,
+                                  .x_prev = 0,
+                                  .x_prev_2 = 0,
+                                  .y_prev_2 = 0};
 
 
 // freqСut = 1rГц
@@ -359,15 +359,15 @@ static f_2_struct_t f_2_struct = {.a1 = -0.350920F,
 
 
 //// Фильтр первого порядка freqCut = 1кГц - рабочий
-static f_2_struct_t f_2_struct = {.a1 = -0.455938F,
-                                  .a2 = 0.0F,
-                                  .b0 = 0.544062,
-                                  .b1 = 0.0,
-                                  .b2 = 0.0F,
-                                  .y_prev = 0,
-                                  .x_prev = 0,
-                                  .x_prev_2 = 0,
-                                  .y_prev_2 = 0};
+//static f_2_struct_t f_2_struct = {.a1 = -0.455938F,
+//                                  .a2 = 0.0F,
+//                                  .b0 = 0.544062,
+//                                  .b1 = 0.0,
+//                                  .b2 = 0.0F,
+//                                  .y_prev = 0,
+//                                  .x_prev = 0,
+//                                  .x_prev_2 = 0,
+//                                  .y_prev_2 = 0};
 
 //// freqCut = 500Гц
 //static f_2_struct_t f_2_struct = {.a1 = -0.854636F,
@@ -512,7 +512,6 @@ void coreControlInit()
   filter_1_init(&prefilter, USYSANGLE_TO_FLOAT(g_sysAngle360));
 }
 
-float dbgDusIntegral;
 
 static float runningValue = 0;
 
@@ -525,7 +524,6 @@ void onARStartMoving()
 }
 
 float g_pidOut;
-float g_Udump;
 float g_pidDelta;
 float g_profileDelta;
 
@@ -577,9 +575,7 @@ void coreMove()
   float currentPositionSSC = F_2(_getPosition(mode, (float)startValue));
   float currentSpeedSSC = (currentPositionSSC - currentPositionSSCPrev) * 8000.0F; // 8 kHz TODO: constant
   currentPositionSSCPrev = currentPositionSSC;
-  
-    
-  dbgDusIntegral = currentPosition;
+ 
   
   // профилировщик не имеет смысла для ВУС
   if (mode == CTRL_MODE_VUS)
@@ -603,8 +599,7 @@ void coreMove()
   const float Kmd = 0; //1.6312F;
   
   // ограничение по скорости здесь
-  g_Udump = Kmd * currentSpeedSSC;
-  out = out - g_Udump;
+  out = out - Kmd * currentSpeedSSC;
   
   if(mode == CTRL_MODE_ENGINE_OFF) return;
   _setPwm(out);
