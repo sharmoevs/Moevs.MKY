@@ -37,7 +37,7 @@ float           _getCurrentPosition(_controlMode_t mode);
 float           _getEndPosition(_controlMode_t mode);
 
 float           _saturation(float in, float *correction);
-void            _setPwm(float pidOut);
+void            f(float pidOut);
 
 
 void F_1_reset();

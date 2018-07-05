@@ -2042,6 +2042,9 @@
   <file>
     <name>$PROJ_DIR$\main.c</name>
   </file>
+  <file>
+    <name>$PROJ_DIR$\src\momentInertiaTest.c</name>
+  </file>
 </project>
 
 

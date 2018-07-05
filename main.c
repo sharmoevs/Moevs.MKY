@@ -24,6 +24,7 @@
 #include "canMonitorText.h"
 #include "canFrameQueue.h"
 #include "coreControl.h"
+#include "momentInertiaTest.h"
 
 
 
@@ -93,33 +94,50 @@ void TIMER4_IRQHandler()
   
   dus_getNextSample();          // отсчет с ДУС
   angle_getNextSampleX32();     // отсчет с датчика угла 
-  gk_checkSpeedProtection();    // средняя скорость 
+  //gk_checkSpeedProtection();    // средняя скорость 
   //dus_calibrate();              // калибровка ДУС
+  //speedCalibration();           // калибровка скорости  
+  //gkModeControl();
+  //coreMove();
   
-  speedCalibration();           // калибровка скорости  
-  gkModeControl();
-  coreMove();
-  
+  momentInertia_test();
   
   
   // Отправка угла и проч
   static uint32_t timer = 0;
-  if(elapsed(&timer, 5))
-  {    
-    extern float g_pidOut;
-    extern float g_currentSpeedFromDus;
-    extern uint32_t g_sysAngle360;
-    extern float g_pidDelta;
-    extern float g_profileDelta;
-    float currentAngle = USYSANGLE_TO_FLOAT(g_sysAngle360);
+  if(elapsed(&timer, 1))
+  {
+    extern uint8_t mitest_sendDebugValueEnable;
+    extern uint8_t mitest_testRunning;
+    extern float mitest_currentAngle;
+    extern float mitest_averageSpeed;
     
-    canMonitor_sendAngle(currentAngle);             // текущий угол
-    canMonitor_sendSpeed(g_currentSpeedFromDus);
-    canMonitor_sendUpr(g_pidOut);
-    canMonitor_sendValue1(g_pidDelta);
+    if(mitest_testRunning || mitest_averageSpeed != 0)
+    {
+      canMonitor_sendAngle(mitest_currentAngle);
+    }
+    
+    
+    //if(mitest_sendDebugValueEnable)
+    {
+     // canMonitor_sendAngle(mitest_currentAngle);             // текущий угол
+     // canMonitor_sendSpeed(mitest_averageSpeed);
+      
+     /*
+      #define SAMPLES_COUNT 1000
+      static uint32_t index = 0;
+      index++;
+      if(index == SAMPLES_COUNT)
+      {
+        index = 0;
+        mitest_sendDebugValueEnable = 0;
+        canMonitor_printf("завершена передача значений");
+      }
+      */
+    }  
+    
 
-    canMonitor_sendCourseVelocity();    // угловая скорость и средняя
-  }  
+  }
   
   
   

@@ -562,7 +562,12 @@ void canMonitor_processDbgTEXT(uint8_t *pBuf, uint8_t len)
     canMonitor_printf("Разрешение логгирование калибровки ДУС в арретире = %d", enableDusArreiterCalibrationLog);
   }
   
-  
+   // Отправить список команд
+  if(cmpStr("mitest", pBuf, len))
+  {
+     extern void momentInertiaTest_start();
+     momentInertiaTest_start();
+  }
 }
 
 // Отправить список команд
