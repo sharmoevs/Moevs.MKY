@@ -111,10 +111,15 @@ void TIMER4_IRQHandler()
     extern uint8_t mitest_testRunning;
     extern float mitest_currentAngle;
     extern float mitest_averageSpeed;
+    extern float g_currentSpeedFromDus;
+    extern float mitest_acceleration;
     
     if(mitest_testRunning || mitest_averageSpeed != 0)
     {
       canMonitor_sendAngle(mitest_currentAngle);
+      canMonitor_sendSpeed(mitest_averageSpeed);
+      //canMonitor_sendSpeed(g_currentSpeedFromDus);
+      canMonitor_sendUpr(mitest_acceleration);
     }
     
     

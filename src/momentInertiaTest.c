@@ -10,11 +10,11 @@
 
 
 
-#define MAX_SPEED       100
-#define OFFSET_ANGLE    15
+#define MAX_SPEED       250
+#define OFFSET_ANGLE    60
 #define PWM_PERSENTAGES 60
 
-#define SPEED_CALC_PERIOD   100
+#define SPEED_CALC_PERIOD   10
 
 extern uint32_t g_sysAngle360;
 extern void _setPwm(float pid);
@@ -36,6 +36,9 @@ uint32_t mitest_endTime;
 float mitest_startAngle;        // начальный угол
 float mitest_calculatedEndAngle;// расчитанный конечный угол
 float mitest_realEndAngle;      // на самом деле какой угол был выбран
+
+
+float mitest_acceleration = 0;      // ускорение
 
 uint8_t mitest_sendDebugValueEnable = 1;
 
@@ -72,9 +75,10 @@ void momentInertiaTest_omEngineDisabled(uint8_t speedProtected)
   mitest_endTime = system_time;
   mitest_realEndAngle = mitest_currentAngle;
   
+   
   uint32_t elapsedTime = mitest_endTime - mitest_startTime;
-  canMonitor_printf("Двигатели выключены на %.3f через %dмс. %s", mitest_realEndAngle, elapsedTime,
-                    speedProtected ? "Сработала защита" : "");
+  canMonitor_printf("Двигатели выключены на %.3f через %dмс", mitest_realEndAngle, elapsedTime);
+  if(speedProtected) canMonitor_printf("Сработала защита %dград/сек", MAX_SPEED);
 }
 
 // Включить/выключить двигатели
@@ -180,6 +184,14 @@ uint8_t _calculateAverageSpeed(float *averSpeed, uint32_t intervalMs)
         float deltaFi = MIN(r1, r2);       
         *averSpeed = deltaFi/((float)intervalMs/1000.0);
         prevAngle = currAngle;
+        
+        
+        
+        // рассчет ускорения
+        static float prevSpeed = 0;
+        float currestSpeed =  *averSpeed;        
+        mitest_acceleration = (currestSpeed - prevSpeed)/((float)intervalMs/1000.0); 
+        prevSpeed = currestSpeed;
         
         
         averSpeed++;

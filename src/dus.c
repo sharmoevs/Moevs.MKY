@@ -123,5 +123,5 @@ float dusHardFilter(float in)
   yavg = k * in + (1.0F - k) * yavg;
  
   return in;
-  return in - yavg;
+  //return in - yavg;
 }
