@@ -3,7 +3,8 @@
 
 
 
-void momentInertiaTest_start();
+void momentInertiaTest_start(int pwm);
+void momentInertiaTest_stop();
 void momentInertia_test();
 
 

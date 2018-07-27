@@ -12,7 +12,7 @@
 
 #define MAX_SPEED       250
 #define OFFSET_ANGLE    60
-#define PWM_PERSENTAGES 60
+//#define PWM_PERSENTAGES 60
 
 #define SPEED_CALC_PERIOD   10
 
@@ -33,6 +33,8 @@ uint8_t mitest_engineEnable = 0;
 uint32_t mitest_startTime;
 uint32_t mitest_endTime;
 
+int mitest_pwm;
+
 float mitest_startAngle;        // начальный угол
 float mitest_calculatedEndAngle;// расчитанный конечный угол
 float mitest_realEndAngle;      // на самом деле какой угол был выбран
@@ -52,8 +54,15 @@ float _calculateOffsetAngle(float startAngle, float offset)
 }
 
 // Начало теста
-void momentInertiaTest_start()
+void momentInertiaTest_start(int pwm)
 {
+  if(pwm == 0) 
+  {
+    momentInertiaTest_stop();
+    return;
+  }
+  
+  mitest_pwm = pwm;
   mitest_startTime = system_time;
   mitest_startAngle = USYSANGLE_TO_FLOAT(g_sysAngle360);
   mitest_calculatedEndAngle = _calculateOffsetAngle(mitest_startAngle, OFFSET_ANGLE);
@@ -67,6 +76,17 @@ void momentInertiaTest_start()
   mitest_testRunning = 1;
   setEngineEnable(1, 0);  
 }
+
+// останов
+void momentInertiaTest_stop()
+{
+  canMonitor_printf("Тест остановлен");
+  mitest_engineEnable = 0;
+  mitest_testRunning = 0;
+  _setTimerPwm(0);
+}
+  
+
 
 // Выключены двигатели
 void momentInertiaTest_omEngineDisabled(uint8_t speedProtected)
@@ -85,7 +105,7 @@ void momentInertiaTest_omEngineDisabled(uint8_t speedProtected)
 void setEngineEnable(uint8_t enable, uint8_t protectionWorked)
 {
   mitest_engineEnable = enable;
-  _setTimerPwm(enable ? PWM_PERSENTAGES : 0);
+  _setTimerPwm(enable ? mitest_pwm : 0);
   if(!enable)
   {
      engine_disableSpin();
@@ -95,7 +115,7 @@ void setEngineEnable(uint8_t enable, uint8_t protectionWorked)
 
 void _setTimerPwm(float percentages)
 {
-#define PWM_THRESHOLD   60.0
+#define PWM_THRESHOLD   100.0 //60.0
   static float pwmThresholdCode = TIM_PWM_GET_CCR3(PWM_THRESHOLD);
   
   if(percentages >= PWM_THRESHOLD)
@@ -122,14 +142,15 @@ void momentInertia_test()
       
   if(!mitest_engineEnable) return;
   //if(system_time - mitest_startTime < 300) return;
-    
+
+  
   // защита по скорости
   if(mitest_averageSpeed > MAX_SPEED)
   {
     uint8_t protectionWorked = 1;
     setEngineEnable(0, protectionWorked);
   }
-  
+  /* // отключение двигателей при повороте на заданный угол
   // Проеряем, что повернулись на заданный угол  
   float maxAngle = MAX(mitest_currentAngle, mitest_calculatedEndAngle);
   float minAngle = MIN(mitest_currentAngle, mitest_calculatedEndAngle);
@@ -143,6 +164,8 @@ void momentInertia_test()
     uint8_t protectionWorked = 0;
     setEngineEnable(0, protectionWorked);
   }
+  */
+  
   
   if(mitest_engineEnable)
   {

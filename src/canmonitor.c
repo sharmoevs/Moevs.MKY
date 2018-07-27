@@ -563,11 +563,25 @@ void canMonitor_processDbgTEXT(uint8_t *pBuf, uint8_t len)
   }
   
    // Отправить список команд
-  if(cmpStr("mitest", pBuf, len))
+  if(continueWith("mitest start ", pBuf, &ptr))
   {
-     extern void momentInertiaTest_start();
-     momentInertiaTest_start();
+     extern void momentInertiaTest_start(int pwm);
+     
+     int pwm = strtol(ptr, &end, 10);
+     if(ptr == end) return;     
+     if(pwm < 0) pwm = 0;
+     //if(pwm > 60) pwm = 60;
+     canMonitor_printf("МИ Тест стартовал. Заполнение ШИМ %d%", pwm);
+  
+     momentInertiaTest_start(pwm);
   }
+   
+  if(continueWith("mitest stop", pBuf, &ptr))
+  {
+     extern void momentInertiaTest_stop();
+     momentInertiaTest_stop();
+  }
+  
 }
 
 // Отправить список команд
